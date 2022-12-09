@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devloper's Community scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+</head>
+<body>
+    <center>
+    <div id="qr-reader" style="width:500px"></div>
+<div id="qr-reader-results"></div></center>
+<div>
+
+    <center><h1  id="record"></h1></center>
+    <p id="record-info" style="font-size: xx-large;">
+
+
+    </p>
+
+
+    </p>
+</div>
+</body>
+<script type="module">
+    
+
+
+
+
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js'
+
+    // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+    import { getAnalytics } from 'https://www.gstatic.com/firebasejs/9.12.1/firebase-analytics.js'
+
+    // Add Firebase products that you want to use
+    import { getDatabase  ,ref, set ,get,child} from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js'
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore.js'
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_1ZBnY4pPJBdnE2mcLpAa9zrbC4sIV0M",
+  authDomain: "vac-event.firebaseapp.com",
+  databaseURL: "https://vac-event-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "vac-event",
+  storageBucket: "vac-event.appspot.com",
+  messagingSenderId: "795652404563",
+  appId: "1:795652404563:web:24d7150911aec171621da6",
+  measurementId: "G-J0BN3ZXSNZ"
+};
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const database = getDatabase(app);
+const db=getDatabase()
+const dbRef = ref(getDatabase());
+  
+var resultContainer = document.getElementById('qr-reader-results');
+var lastResult, countResults = 0;
+
+function onScanSuccess(decodedText, decodedResult) {
+    if (decodedText !== lastResult) {
+        ++countResults;
+        lastResult = decodedText;
+       
+        console.log(`Scan result ${decodedText}`, decodedResult);
+        get(child(dbRef, `registered/${decodedText}`)).then((snapshot) => {
+  if (snapshot.val()) {
+    console.log(snapshot.val())
+    document.getElementById('record').innerText="Record Found"
+    document.getElementById('record').style.color="green"
+    document.getElementById('record-info').innerText=`Id : ${decodedText} Name: ${snapshot.val().FirstName +" "+ snapshot.val().LastName}  Email: ${snapshot.val().Email}  Phone: ${snapshot.val().Phone} Clg Reg No: ${snapshot.val().clgRegNo} Course:${snapshot.val().Course} Year:${snapshot.val().Year}`
+    // {Course: 'X', Email: 'svishwa63@gmail.com', FirstName: 'S', LastName: 'RUKMANI', Phone: '0882554963', …}
+    }
+
+else{
+    console.log(snapshot.val())
+}
+}).catch((error) => {
+    document.getElementById('record').innerText="Record not Found"
+    document.getElementById('record').style.color="red"
+  console.error(error);
+  });
+}}
+
+var html5QrcodeScanner = new Html5QrcodeScanner(
+    "qr-reader", { fps: 10, qrbox: 250 });
+html5QrcodeScanner.render(onScanSuccess);
+</script>
+<script>
+  
+</script>
+</html>
